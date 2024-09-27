@@ -149,3 +149,50 @@ func TestGetBinaryString(t *testing.T) {
 		assert.Equal(t, test.expected, result)
 	}
 }
+
+func TestFindKey(t *testing.T) {
+	type testCase struct {
+		encrypted  []byte
+		decrypted  string
+		expected   []byte
+		shouldFail bool
+	}
+
+	tests := []testCase{
+		{
+			[]byte{0x1b, 0x2c, 0x3d},
+			"yes",
+			[]byte{0x62, 0x49, 0x4e},
+			false,
+		}, // Correct key for "yes" is 62 49 4e
+		{
+			[]byte{0x2a, 0xff, 0xea},
+			"car",
+			[]byte{0x49, 0x9e, 0x98},
+			false,
+		}, // Correct key for "car" is 49 9e 98
+		{
+			[]byte{0x7d, 0x31, 0x32},
+			"she",
+			[]byte{0x0e, 0x59, 0x57},
+			false,
+		}, // Correct key for "she" is 0e 59 57
+		{
+			[]byte{0x2b, 0xff, 0xaa},
+			"top",
+			[]byte{0x5f, 0x90, 0xda},
+			false,
+		}, // Correct key for "top" is 5f 90 da
+		{
+			[]byte{0x1c, 0x4d, 0x5e},
+			"win",
+			[]byte{0x6b, 0x24, 0x30},
+			false,
+		}, // Correct key for "win" is 6b 24 30
+	}
+
+	for _, test := range tests {
+		key, _ := FindKey(test.encrypted, test.decrypted)
+		assert.Equal(t, test.expected, key)
+	}
+}
